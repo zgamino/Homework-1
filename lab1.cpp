@@ -102,6 +102,7 @@ int check_keys(XEvent *e);
 void movement(Game *game);
 void render(Game *game);
 void text(void);
+bool bubbler=false;
 
 int main(void)
 {
@@ -190,7 +191,6 @@ void init_opengl(void)
 void makeParticle(Game *game, int x, int y) {
 	if (game->n >= MAX_PARTICLES)
 		return;
-	std::cout << "makeParticle() " << x << " " << y << std::endl;
 	//position of particle
 	Particle *p = &game->particle[game->n];
 	p->s.center.x = x;
@@ -228,6 +228,13 @@ int check_keys(XEvent *e)
 		int key = XLookupKeysym(&e->xkey, 0);
 		if (key == XK_Escape) {
 			return 1;
+		}
+		if(key == XK_b){
+                    if(bubbler==true)
+                        bubbler=false;
+
+                    else if(bubbler==false)
+			bubbler=true;
 		}
 		//You may check other keys here.
 
@@ -282,7 +289,6 @@ void movement(Game *game)
 			//check for off-screen
 			if (p->s.center.y < 0.0){
 				memcpy(&game->particle[i],&game->particle[game->n-1],sizeof(Particle));
-				std::cout << "off screen" << std::endl;
 				game->n--;
 			}
 
@@ -299,6 +305,18 @@ void render(Game *game)
 	glClear(GL_COLOR_BUFFER_BIT);
 	//Draw shapes...
 
+         if(bubbler==false){
+         r.center=0;
+         r.bot=WINDOW_HEIGHT-20;
+         r.left=10;
+         ggprint8b(&r,16,0x008b0000,"Hey, you should Press 'b' for bubbler!");
+         }
+         if(bubbler==true){
+         r.center=0;
+         r.bot=WINDOW_HEIGHT-20;
+         r.left=10;
+         ggprint8b(&r,16,0x008b0000,"Okay, you can stop now.... Press 'b' to stop!");
+         }
 	//draw box
 	Shape *s;
 	glColor3ub(217,241,247);
@@ -317,35 +335,23 @@ void render(Game *game)
 
 		glEnd();
 		glPopMatrix();
+		r.center=1;
+		r.bot=s->center.y-10;
+		r.left=s->center.x;
+		if(i==0)
+			ggprint13(&r,16,0x008b0000,"Requirements");
+		if(i==1)	
+			ggprint13(&r,16,0x008b0000,"Design");
+		if(i==2)	
+			ggprint13(&r,16,0x008b0000,"Coding");
+		if(i==3)	
+			ggprint13(&r,16,0x008b0000,"Testing");
+		if(i==4)	
+			ggprint13(&r,16,0x008b0000,"Maintenance");
+
+		glColor3ub(217,241,247);
 	}    
 
-
-	r.center=1;
-	r.bot=WINDOW_HEIGHT-110;
-	r.left=120;
-	ggprint13(&r,16,0x008b0000,"Requirements");
-
-	r.center=1;
-	r.bot=WINDOW_HEIGHT-170;
-	r.left=190;
-	ggprint13(&r,16,0x008b0000,"Design");
-
-	r.center=1;
-	r.bot=WINDOW_HEIGHT-230;
-	r.left=260;
-	ggprint13(&r,16,0x008b0000,"Coding");
-
-	r.center=1;
-	r.bot=WINDOW_HEIGHT-290;
-	r.left=320;
-	ggprint13(&r,16,0x008b0000,"Testing");
-
-	r.center=1;
-	r.bot=WINDOW_HEIGHT-350;
-	r.left=380;
-	ggprint13(&r,16,0x008b0000,"Maintenance");
-
-	glColor3ub(217,241,247);
 	const int n=40;
 	static int firsttime=1;
 	static Vec vert[n];
@@ -389,10 +395,19 @@ void render(Game *game)
 	}
 	glPopMatrix();
 
-	for(int t=0;t<15;t++){
-		makeParticle(game,WINDOW_WIDTH-670,WINDOW_HEIGHT-30);
+	if(bubbler==true){
+		for(int t=0;t<15;t++){
+                        if(bubbler==false)
+                           break;
+			makeParticle(game,WINDOW_WIDTH-670,WINDOW_HEIGHT-30);
+                        
+                        if(bubbler==false)
+                            break;
+		}
 	}
 
 }
+
+
 
 
